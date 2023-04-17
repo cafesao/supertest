@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  api:
+    container_name: api
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.prod
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: curl --fail http://localhost:3000/api/healthcheck || exit 1
+      interval: 5s
+      timeout: 60s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      test:
+        condition: service_completed_successfully
+  test:
+    container_name: test
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.test
+  # db:
+  #   image: mysql
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: ${MYSQL_DATABASE}
+  #     MYSQL_USER: ${MYSQL_USER}
+  #     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #   ports:
+  #     - '${MYSQL_PORT}:3306'
+  #   volumes:
+  #     - api-vet:/var/lib/mysql
+  # Names our volume
+  # volumes:
+  #   api-vet:
